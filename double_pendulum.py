@@ -1,16 +1,18 @@
 from math import sin, cos
 import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 class Simulation:
     
-    def __init__(self, state, acceleration, method, plots, kwargs):
+    def __init__(self, state, acceleration, method, kwargs):
         self.t = 0
         self.state = state
         self.acceleration = acceleration
         self.method = method
-        self.plots = plots
         self.kwargs = kwargs
+        self.plots = None
     
     def step(self, dt):
         self.state = self.method(self.t, dt, self.state, self.acceleration, self.kwargs)
@@ -55,11 +57,28 @@ def acceleration_double_pendulum(t, state, kwargs, g = 9.81):
 
 
 
-def init(ax):
-    rods, = ax.plot([], [], c='y', lw=3)
-    line1, = ax.plot([], [], c='b')
-    line2, = ax.plot([], [], c='g')
-    return {"line1": line1, "line2": line2, "rods": rods, "trail1": [[],[]], "trail2": [[],[]] } 
+def init(ax, sim): #state, nframes):
+    P1, P2 = angles_to_cartesian(sim.state[:2], sim.kwargs['L'])
+    nframes = sim.kwargs['trail_frames']
+    
+    rods, = ax.plot([], [], c='y', lw=5)
+    #line1, = ax.plot([], [], c='b')
+    #line2, = ax.plot([], [], c='g')
+    
+    
+    cmap1 = plt.get_cmap('Blues')(np.arange(0,1,1./nframes))
+    cmap2 = plt.get_cmap('Greens')(np.arange(0,1,1./nframes))
+
+    lc1 = matplotlib.collections.LineCollection([])
+    lc2 = matplotlib.collections.LineCollection([])
+    
+    ax.add_collection(lc1)
+    ax.add_collection(lc2)
+
+    sim.plots = {"lc1": lc1, "lc2": lc2, 'cmap1': cmap1, 'cmap2': cmap2, 
+                 "rods": rods, "trail1": [ [P1,P1] ], "trail2": [ [P2,P2] ] } 
+    
+    return
 
 def angles_to_cartesian(angles, L):
     a1, a2 = angles
@@ -73,25 +92,22 @@ def angles_to_cartesian(angles, L):
 def animate(i, dt, sim):
     sim.step(dt)
     P1, P2 = angles_to_cartesian(sim.state[:2], sim.kwargs['L'])
-    sim.plots['trail1'][0].append(P1[0])
-    sim.plots['trail1'][1].append(P1[1])
-    sim.plots['trail2'][0].append(P2[0])
-    sim.plots['trail2'][1].append(P2[1])
+    last1, last2 = sim.plots['trail1'][-1], sim.plots['trail2'][-1]
+    sim.plots['trail1'].append( [last1[-1], P1] )
+    sim.plots['trail2'].append( [last2[-1], P2] )
     
-    frames = sim.kwargs['trail_frames']
-    for key in ['trail1','trail2']:
-        sim.plots[key][0] = sim.plots[key][0][-frames:]
-        sim.plots[key][1] = sim.plots[key][1][-frames:]
+    nframes = sim.kwargs['trail_frames']
+    #for key in ['trail1','trail2']: sim.plots[key] = sim.plots[key][-nframes:]
     
     sim.plots['rods'].set_xdata( [ 0, P1[0], P2[0] ])
     sim.plots['rods'].set_ydata( [ 0, P1[1], P2[1] ])
-    sim.plots['line1'].set_xdata( sim.plots['trail1'][0] )
-    sim.plots['line1'].set_ydata( sim.plots['trail1'][1] )
-    sim.plots['line2'].set_xdata( sim.plots['trail2'][0] )
-    sim.plots['line2'].set_ydata( sim.plots['trail2'][1] )
     
-    return (sim.plots[key] for key in ['line1', 'line2', 'rods'])
+    
+    sim.plots['lc1'].set( segments = sim.plots['trail1'][-nframes:], 
+                          color = sim.plots['cmap1'][-nframes:] )
+    sim.plots['lc2'].set( segments = sim.plots['trail2'][-nframes:], 
+                          color = sim.plots['cmap2'][-nframes:] )
 
-
-
+    
+    return (sim.plots[key] for key in ['lc1', 'lc2', 'rods'])
 
