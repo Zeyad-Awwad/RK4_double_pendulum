@@ -1,2 +1,5 @@
-# rk4_double_pendulum
- An animated simulation of a double pendulum using the 4th order Runge-Kutta method to solve the equations of motions
+# Double Pendulum Dynamics (4th Order Runge-Kutta)
+
+ A dynamic model that solves the equations of motion for a double pendulum using the 4th order Runge-Kutta method.
+ 
+ The example notebook includes an interactive embedded animation of a trial run (requires Matplotlib 2.1+ to display).
