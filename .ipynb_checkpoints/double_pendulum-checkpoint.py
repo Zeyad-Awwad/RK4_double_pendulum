@@ -194,14 +194,17 @@ def acceleration_n_pendulum(t, state, kwargs, g = -9.81):
 
 
 
-def init(ax, sim):
-    P1, P2 = angles_to_cartesian(sim.state[:2], sim.kwargs['L'])
+def init(sim):
+    L = sim.kwargs['L']
+
+    fig, ax = plt.subplots( figsize=(10,10) )
+    ax.set_xlim( -sum(L), sum(L) )
+    ax.set_ylim( -sum(L), sum(L) )
+
+    P1, P2 = angles_to_cartesian(sim.state[:2], L)
     nframes = sim.kwargs['trail_frames']
     
     rods, = ax.plot([], [], c='y', lw=5)
-    #line1, = ax.plot([], [], c='b')
-    #line2, = ax.plot([], [], c='g')
-    
     
     cmap1 = plt.get_cmap('Blues')(np.arange(0,1,1./nframes))
     cmap2 = plt.get_cmap('Greens')(np.arange(0,1,1./nframes))
@@ -215,7 +218,7 @@ def init(ax, sim):
     sim.plots = {"lc1": lc1, "lc2": lc2, 'cmap1': cmap1, 'cmap2': cmap2, 
                  "rods": rods, "trail1": [ [P1,P1] ], "trail2": [ [P2,P2] ] } 
     
-    return
+    return fig
 
 def angles_to_cartesian(angles, L):
     N = len(angles)
