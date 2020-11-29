@@ -240,10 +240,10 @@ def angles_to_cartesian(angles, L):
     return P
 
 
-def animate(i, dt, sim):
+def animate(i, sim):
     
     for step in sim.kwargs['framesteps']:
-        sim.step(dt)
+        sim.step(sim.kwargs['dt'])
         
     dim = len(sim.state) // 2
     P = angles_to_cartesian(sim.state[:dim], sim.kwargs['L'])
