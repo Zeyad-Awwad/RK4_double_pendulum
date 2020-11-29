@@ -13,5 +13,5 @@ The example notebook includes multiple animation options including an embedded M
 This example shows a double pendulum using the dedicated acceleration function and the RK4 method.
 ![An animation of the double pendulum](example_2.gif)
 
-This demonstrates the motion a pendulum with 20 links using the general acceleration function and the SSPRK3 method
+This demonstrates the motion of a pendulum with 20 links using the general acceleration function and the SSPRK3 method
 ![An animation of a 20-link pendulum](example_20.gif)
