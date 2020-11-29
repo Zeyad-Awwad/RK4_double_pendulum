@@ -196,7 +196,12 @@ def acceleration_n_pendulum(t, state, kwargs, g = -9.81):
 
 def init(sim):
     L = sim.kwargs['L']
-
+    
+    if 'steps_per_frame' in sim.kwargs:
+        sim.kwargs['framesteps'] = range(sim.kwargs['steps_per_frame'])
+    else:
+        sim.kwargs["framesteps"] = [0]
+    
     fig, ax = plt.subplots( figsize=(10,10) )
     ax.set_xlim( -sum(L), sum(L) )
     ax.set_ylim( -sum(L), sum(L) )
@@ -236,10 +241,13 @@ def angles_to_cartesian(angles, L):
 
 
 def animate(i, dt, sim):
-    sim.step(dt)
+    
+    for step in sim.kwargs['framesteps']:
+        sim.step(dt)
+        
     dim = len(sim.state) // 2
     P = angles_to_cartesian(sim.state[:dim], sim.kwargs['L'])
-    P1, P2 = P[:2]
+    P1, P2 = P[-2:]
     
     last1, last2 = sim.plots['trail1'][-1], sim.plots['trail2'][-1]
     sim.plots['trail1'].append( [last1[-1], P1] )
