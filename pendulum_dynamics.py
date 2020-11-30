@@ -12,6 +12,18 @@ class Simulation:
     """
     
     def __init__(self, state, acceleration, method, kwargs):
+        """
+        Initializes an instance of the class
+        
+        Inputs:
+            state: The initial state (gets updated after each step)
+            acceleration: The function used to update the state
+            method: The numerical method used for time stepping
+            kwargs: A dictionary of arguments for the acceleration function
+        
+        Returns
+            None
+        """
         self.t = 0
         self.state = state
         self.acceleration = acceleration
@@ -21,6 +33,15 @@ class Simulation:
         return
     
     def step(self, dt):
+        """
+        Initializes an instance of the class
+        
+        Inputs:
+            dt: The timestep used to update the current state
+        
+        Returns
+            None
+        """
         self.state = self.method(self.t, dt, self.state, self.acceleration, self.kwargs)
         self.t += dt
         return
@@ -148,8 +169,6 @@ def acceleration_double_pendulum(t, state, kwargs, g = 9.81):
 
 
 def acceleration_n_pendulum(t, state, kwargs, g = -9.81):
-    # "Parallel simulation of large scale multibody systems" by Kloppel et al.
-    #Source: https://onlinelibrary.wiley.com/doi/pdf/10.1002/pamm.201510327
     """
     Calulates the acceleration of an arbitrary n-pendulum in a given state
     Implements the method used by Kloppel at al. in the following paper
@@ -194,7 +213,17 @@ def acceleration_n_pendulum(t, state, kwargs, g = -9.81):
 
 
 
-def init(sim):
+def init(sim, figsize=(10,10)):
+    """
+    Initializes the plots for the animation function
+    
+    Inputs:
+        sim: An initialized instance of the Simulation class
+    
+    Returns:
+        fig: the pyplot figure used for animation
+    """
+    
     L = sim.kwargs['L']
     
     if 'steps_per_frame' in sim.kwargs:
@@ -202,7 +231,7 @@ def init(sim):
     else:
         sim.kwargs["framesteps"] = [0]
     
-    fig, ax = plt.subplots( figsize=(10,10) )
+    fig, ax = plt.subplots( figsize=figsize )
     ax.set_xlim( -sum(L), sum(L) )
     ax.set_ylim( -sum(L), sum(L) )
 
@@ -226,6 +255,16 @@ def init(sim):
     return fig
 
 def angles_to_cartesian(angles, L):
+    """
+    Calculates the locations of all pendulum masses
+    
+    Inputs:
+        angles: The list of rod angles
+        L: The list of rod lengths
+    
+    Returns:
+        P: The list of positions for all pendulum masses
+    """
     N = len(angles)
     P = [ 0 for n in range(N) ]
     
@@ -241,7 +280,16 @@ def angles_to_cartesian(angles, L):
 
 
 def animate(i, sim):
+    """
+    Updates the frames of the animation
     
+    Inputs:
+        i: The frame number (not used, but required by the library)
+        sim: An instance of the Simulation class
+    
+    Returns:
+        (ax1,...axN): A tuple of all plot axes
+    """
     for step in sim.kwargs['framesteps']:
         sim.step(sim.kwargs['dt'])
         
@@ -261,7 +309,6 @@ def animate(i, sim):
                           color = sim.plots['cmap1'][-nframes:] )
     sim.plots['lc2'].set( segments = sim.plots['trail2'][-nframes:], 
                           color = sim.plots['cmap2'][-nframes:] )
-
     
     return (sim.plots[key] for key in ['lc1', 'lc2', 'rods'])
 
